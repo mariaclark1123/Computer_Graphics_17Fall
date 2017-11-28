@@ -1,0 +1,54 @@
+﻿  main.cpp
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(56): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(68): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(104): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(105): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(114): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(115): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(122): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(124): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(135): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(136): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(142): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(144): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(151): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(152): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(157): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(162): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(163): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(92): warning C4101: 'temp_x': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(92): warning C4101: 'temp_y': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(288): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(301): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(303): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(304): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(426): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(453): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(535): warning C4101: 'vec_junc': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(534): warning C4101: 'pt_junc': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(586): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(691): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(693): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(647): warning C4101: 'distance': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(649): warning C4101: 'vec_temp': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(677): warning C4101: 'segment': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(75): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(93): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(94): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(133): warning C4305: 'argument': truncation from 'int' to 'GLubyte'
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(133): warning C4309: 'argument': truncation of constant value
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(174): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(175): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(199): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(58): warning C4101: 't_sq': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(353): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(328): warning C4101: 'temp': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(328): warning C4101: 't': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(551): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(456): warning C4101: 'end': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\main.cpp(456): warning C4101: 'start': unreferenced local variable
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(268): warning C4715: 'quadrant': not all control paths return a value
+c:\users\user\documents\visual studio 2015\projects\cagd-hw1\cagd-hw1\tool.h(411): warning C4715: 'Center_dis': not all control paths return a value
+  CAGD-HW1.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\CAGD-HW1\Debug\CAGD-HW1.exe
+  CAGD-HW1.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\CAGD-HW1\Debug\CAGD-HW1.pdb (Full PDB)

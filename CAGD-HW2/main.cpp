@@ -17,158 +17,39 @@ color setting(RGB):
 3. inflection point(256,67,101)
 *****************************************/
 #include "tool.h"
+#include <math.h>
 #include <iostream>
 #include <gl/freeglut.h>
 using namespace std;
 
+#define Ep 0.001
+
+
+static int num = 0, num_junc = 0, num_line = 0;
+float offset;
+
 CubicBezierCurve curve;
 GLsizei width = 640, height = 480;
 int edit_ctrlpts_idx = -1;
-int pt_num;
-float res_pt[20] = {0};
-float coef1[2] = { 0 }, coef2[2] = { 0 }, coef3[2] = { 0 }, judge[2] = { 0 };
+
+/***time segment***/
+int exin_num, curex_num, all_num;
+float exin_t[20] = { 0 }, curex_t[5] = { 0 }, all_t[20] = { 0 };
+
+typedef struct BiNode {
+	float start;
+	float end;
+	float center_dis;
+	int depth;
+	struct BiNode *lChild;
+	struct BiNode *rChild;
+}BiNode, *BiTree;
+
 
 void SetColor(unsigned short ForeColor, unsigned short BackGroundColor)
 {
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hCon, (ForeColor % 16) | (BackGroundColor % 16 * 16));
-}
-
-void update_coef()
-{
-	//CACULATE THE COEFFCIENTS
-	for (int i = 0; i < 2; i++)
-	{
-		/* b1-b0 */
-		coef1[i] = curve.control_pts[1][i] - curve.control_pts[0][i];
-		/* b2-2b1+b0 */
-		coef2[i] = curve.control_pts[2][i] - 2 * curve.control_pts[1][i] + curve.control_pts[0][i];
-		/* b3-3b2+3b1-b0 */
-		coef3[i] = curve.control_pts[3][i] - 3 * curve.control_pts[2][i] + 3 * curve.control_pts[1][i] - curve.control_pts[0][i];
-		/* judge = b^2 - 4ac*/
-		judge[i] = 4.0 * coef2[i] * coef2[i] - 4 * coef3[i] * coef1[i];
-	}
-}
-
-int hit_index(CubicBezierCurve *curve, int x, int y)
-{
-	int i;
-	for (i = 0; i < 4; ++i)
-	{
-		float tx = curve->control_pts[i][0] - x;
-		float ty = curve->control_pts[i][1] - y;
-		//In the point area
-		if ((tx * tx + ty * ty) < 30)
-		{
-			printf("mouse location:(%d %d)\n", x, y);
-			return i;
-		}
-	}
-	return -1;
-}
-
-float CalCurEx(float t)
-{
-	float result_x, result_xx, result_xxx, result_y, result_yy, result_yyy, part1, part2, result;
-	//C'(t)/3 = (b1-b0) + t(2b2-4b1+2b0) + t^2(b3-3b2+3b1-b0)
-	//C''(t)/6 = (b2-2b1+b0) + t(b3-3b2+3b1-b0)
-	//C'''(t)/6 = (b3-3b2+3b1-b0)
-	//x'(t)
-	result_x = 3 * (coef1[0] + 2 * t * coef2[0] + t*t*coef3[0]);
-	//x''(t)
-	result_xx = 6 * (coef2[0] + t*coef3[0]);
-	//x'''(t)
-	result_xxx = 6 * coef3[0];
-	//y'(t)
-	result_y = 3 * (coef1[1] + 2 * t*coef2[1] + t*t*coef3[1]);
-	//y''(t)
-	result_yy = 6 * (coef2[1] + t*coef3[1]);
-	//y'''(t)
-	result_yyy = 6 * coef3[1];
-
-	//(x'(t)*x'(t)+y'(t)*y'(t)*(x'(t)*y'''(t)-x'''(t)*y'(t)) - 3(x'(t)*x''(t)+y'(t)*y''(t))*(x'(t)*y''(t)-x''(t)*y'(t)))
-	part1 = (result_x * result_x + result_y * result_y) * (result_x * result_yyy - result_y * result_xxx);
-	part2 = 3 * (result_x * result_xx + result_y * result_yy) * (result_x * result_yy - result_y * result_xx);
-	result = part1 - part2;
-	return result;
-}
-
-void CurEx(float t_start, float t_end)
-{
-	float interval, t, temp;
-	float curvature[32];
-	int i;
-
-	//initialization
-	for (i = 0; i < 32; i++)
-		curvature[i] = 0;
-
-	interval = (t_end - t_start) / 31.0;
-
-	glColor3ub(252, 157, 154);
-
-	for (i = 0; i < 32; i++)
-	{
-		float t = t_start + interval * i;
-		curvature[i] = CalCurEx(t);
-	}
-
-	for (i = 0; i < 31; i++)
-	{
-		//When curvature_extreme's sign is different
-		if (curvature[i] * curvature[i + 1] < 0)
-		{
-			Point pt;
-			float middle_point;
-			middle_point = t_start + interval * (2 * i + 1) / 2.0;
-			evaluate(&curve, middle_point, pt);
-			SetColor(4, 0);
-			DrawDot(pt[0], pt[1]);
-			printf("Curvature extreme point---t is %f, point is (%.2f,%.2f)\n", middle_point, pt[0], pt[1]);
-			SetColor(7, 0);
-		}
-		else if (curvature[i] == 0)
-		{
-			if (i >= 1 && i <= 30)
-			{
-				if (curvature[i - 1] * curvature[i + 1] < 0)
-				{
-					Point pt;
-					float middle_point;
-					middle_point = t_start + interval*(2 * i + 1) / 2.0;
-					evaluate(&curve, middle_point, pt);
-					SetColor(4, 0);
-					DrawDot(pt[0], pt[1]);
-					SetColor(7, 0);
-				}
-			}
-		}
-	}
-}
-
-void Der_Vector(float t, Point* vec)
-{
-	//	x'(t)/3  = (b3-3b2+3b1-b0)t^2 + (2b2-4b1+2b0)t+(b1-b0)
-	//		  	 = coef3[0] * t ^ 2 + 2 * coef2[0] * t + coef1[0]
-	float der_x, der_y, length;
-	der_x = coef3[0] * t * t + 2 * coef2[0] * t + coef1[0];
-	der_y = coef3[1] * t * t + 2 * coef2[1] * t + coef1[1];
-	length = der_x * der_x + der_y * der_y;
-	length = sqrt(length);
-	*vec[0] = der_x / length;
-	*vec[1] = der_y / length;
-}
-
-void Cal_midpt(Point start, Point end, Point* mid)
-{
-	*mid[0] = (start[0] + end[0]);
-	*mid[1] = (start[0] + end[1]);
-}
-
-void Cal_lineinters(Point l1_start, POINT l1_end, Point l2_start, POINT l2_end, Point* inter)
-{
-	//1st line
-	//y = (l1_end[1]-l1_start[1])/(l1_end[0]-l1_start[0]) x + (l1_start[1]*l1_end[0]-l1_end[1]*l1_start[0])/(l1_end[0]-l1_start[0])
 }
 
 void ExInf()
@@ -196,9 +77,9 @@ void ExInf()
 				{
 					Point pt;
 					evaluate(&curve, t, pt);
-					DrawDot(pt[0], pt[1]);
+					DrawDot(pt);
 
-					res_pt[pointnum] = t;
+					exin_t[pointnum] = t;
 					printf("Extreme point-------------t is %f, point is (%.2f,%.2f)\n", t, pt[0], pt[1]);
 					pointnum++;
 				}
@@ -215,8 +96,8 @@ void ExInf()
 				{
 					Point pt;
 					evaluate(&curve, t1, pt);
-					DrawDot(pt[0], pt[1]);
-					res_pt[pointnum] = t1;
+					DrawDot(pt);
+					exin_t[pointnum] = t1;
 					printf("Extreme point-------------t is %f, point is (%.2f,%.2f)\n", t1, pt[0], pt[1]);
 					pointnum++;
 				}
@@ -224,9 +105,9 @@ void ExInf()
 				{
 					Point pt;
 					evaluate(&curve, t2, pt);
-					DrawDot(pt[0], pt[1]);
+					DrawDot(pt);
 					//draw_points(t2);
-					res_pt[pointnum] = t2;
+					exin_t[pointnum] = t2;
 					printf("Extreme point-------------t is %f, point is (%.2f,%.2f)\n", t2, pt[0], pt[1]);
 					pointnum++;
 				}
@@ -239,8 +120,8 @@ void ExInf()
 				{
 					Point pt;
 					evaluate(&curve, t, pt);
-					DrawDot(pt[0], pt[1]);
-					res_pt[pointnum] = t;
+					DrawDot(pt);
+					exin_t[pointnum] = t;
 					printf("Extreme point--------------t is %f, point is (%.2f,%.2f)\n", t, pt[0], pt[1]);
 					pointnum++;
 				}
@@ -278,10 +159,10 @@ void ExInf()
 			{
 				Point pt;
 				evaluate(&curve, t, pt);
-				DrawDot(pt[0], pt[1]);
+				DrawDot(pt);
 
-				res_pt[pointnum] = t;
-				printf("inflection point-----------t is %f, point is (%.2f,%.2f)\n", t, res_pt[0], res_pt[1]);
+				exin_t[pointnum] = t;
+				printf("inflection point-----------t is %f, point is (%.2f,%.2f)\n", t, exin_t[0], exin_t[1]);
 				pointnum++;
 			}
 		}
@@ -296,19 +177,19 @@ void ExInf()
 			{
 				Point pt;
 				evaluate(&curve, t1, pt);
-				DrawDot(pt[0], pt[1]);
+				DrawDot(pt);
 
-				res_pt[pointnum] = t1;
-				printf("inflection point----------t is %f, point is (%.2f,%.2f)\n", t1, res_pt[0], res_pt[1]);
+				exin_t[pointnum] = t1;
+				printf("inflection point----------t is %f, point is (%.2f,%.2f)\n", t1, exin_t[0], exin_t[1]);
 				pointnum++;
 			}
 			if (t2 > 0 && t2 < 1)
 			{
 				Point pt;
 				evaluate(&curve, t2, pt);
-				DrawDot(pt[0], pt[1]);
+				DrawDot(pt);
 
-				res_pt[pointnum] = t2;
+				exin_t[pointnum] = t2;
 				printf("inflection point----------t is %f, point is (%.2f,%.2f)\n", t2, pt[0], pt[1]);
 				pointnum++;
 			}
@@ -320,9 +201,9 @@ void ExInf()
 			{
 				Point pt;
 				evaluate(&curve, t, pt);
-				DrawDot(pt[0], pt[1]);
+				DrawDot(pt);
 
-				res_pt[pointnum] = t;
+				exin_t[pointnum] = t;
 				printf("Inflection point----------t is %f, point is (%.2f,%.2f)\n", t, pt[0], pt[1]);
 				pointnum++;
 			}
@@ -330,21 +211,21 @@ void ExInf()
 
 	}
 	//The number of all used points' timing
-	pt_num = pointnum + 1;
+	exin_num = pointnum + 1;
 	//printf("pnum is %d\n", pnum);
-	res_pt[pt_num - 1] = 1.0;
+	exin_t[exin_num - 1] = 1.0;
 
 	float temp;
 	//Sorting the points' timing
-	for (i = 0; i < pt_num; i++)
+	for (i = 0; i < exin_num; i++)
 	{
-		for (int j = 0; j < pt_num - 1 - i; j++)
+		for (int j = 0; j < exin_num - 1 - i; j++)
 		{
-			if (res_pt[j] > res_pt[j + 1])
+			if (exin_t[j] > exin_t[j + 1])
 			{
-				temp = res_pt[j];
-				res_pt[j] = res_pt[j + 1];
-				res_pt[j + 1] = temp;
+				temp = exin_t[j];
+				exin_t[j] = exin_t[j + 1];
+				exin_t[j + 1] = temp;
 			}
 		}
 	}
@@ -352,26 +233,196 @@ void ExInf()
 	SetColor(7, 0);
 }
 
-//void Biarc(float t_start, float t_end)
-//{
-//	Point pt_start, p_end;
-//	pt_start = evaluate()
-//
-//}
+//Time sorting
+void Time_Sort()
+{
+	float temp;
+	//Get the all needed points for drawing arc
+	all_num = curex_num + exin_num;
+	for (int i = 0; i < exin_num; i++)
+		all_t[i] = exin_t[i];
+	for (int i = 0; i < curex_num; i++)
+		all_t[i + exin_num] = curex_t[i];
 
-void drawString(const char* str) {
-	static int isFirstCall = 1;
-	static GLuint lists;
-
-	if (isFirstCall)
+	//Sorting the points' timing
+	for (int i = 0; i < all_num; i++)
 	{
-		isFirstCall = 0;
-		lists = glGenLists(MAX_CHAR);
-
-		wglUseFontBitmaps(wglGetCurrentDC(), 0, MAX_CHAR, lists);
+		for (int j = 0; j < all_num - 1 - i; j++)
+		{
+			if (all_t[j] > all_t[j + 1])
+			{
+				temp = all_t[j];
+				all_t[j] = all_t[j + 1];
+				all_t[j + 1] = temp;
+			}
+		}
 	}
-	for (; *str != '\0'; ++str)
-		glCallList(lists + *str);
+}
+
+//void DrawCircle(Point center, Point start, Point end)
+//{
+//	Point vec1, vec2;
+//	float radius;
+//	float cos1, cos2, sin1, sin2, cos_temp, sin_temp, theta1, theta2, theta_diff;
+//
+//	float cos_1 = cos(1);
+//	float sin_1 = sin(1);
+//
+//	radius = (start[X] - center[X]) * (start[X] - center[X]) + (start[Y] - center[Y]) * (start[Y] - center[Y]);
+//	radius = sqrt(radius);
+//
+//	//calculate vec1 and vec2
+//	vec1[X] = start[X] - center[X];
+//	vec1[Y] = start[Y] - center[Y];
+//
+//	vec2[X] = end[X] - center[X];
+//	vec2[Y] = end[Y] - center[Y];
+//
+//	cos1 = vec1[X] / radius;
+//	cos2 = vec2[X] / radius;
+//	sin1 = vec1[Y] / radius;
+//	sin2 = vec2[Y] / radius;
+//
+//	theta1 = acos(cos1);
+//	if (sin1 < 0)
+//		theta1 = 360 - theta1;
+//
+//	theta2 = acos(cos2);
+//	if (sin2 < 0)
+//		theta2 = 360 - theta2;
+//	theta_diff = theta2 - theta1;
+//	printf("\nradius is %f\n", radius);
+//	printf("vec1 is (%f, %f), theta1 is %f\n", vec1[0], vec1[1], theta1);
+//	printf("vec2 is (%f, %f), theta2 is %f\n", vec2[0], vec2[1], theta2);
+//	//printf("theta2 is %f\n", theta2);
+//	/*
+//	1st quadrant: cos+sin+
+//	2nd quadrant: cos-sin+
+//	3rd quadrant: cos-sin-
+//	4th quadrant: cos+sin-
+//	*/
+//	cos_temp = cos1;
+//	sin_temp = sin1;
+//
+//	glColor3ub(0, 0, 0);
+//	glBegin(GL_LINE_LOOP);
+//	glVertex2fv(start);
+//	printf("theta_diff is %f\n", theta_diff);
+//	if (theta_diff >= 0)
+//	{
+//		for (int i = 1; i < theta_diff; i++)
+//		{
+//			cos_temp = Cos_Add(sin_temp, cos_temp, sin_1, cos_1);
+//			sin_temp = Sin_Add(sin_temp, cos_temp, sin_1, cos_1);
+//			glVertex2f(radius*cos_temp, radius*sin_temp);
+//		}
+//	}
+//	glVertex2fv(end);
+//	glEnd();
+//}
+//Judge the point in which quadrant
+
+void CurEx(float t_start, float t_end)
+{
+#define RES 100
+	float interval, t, temp;
+	float curvature[RES];
+	int i;
+
+	//initialization
+	for (i = 0; i < RES; i++)
+		curvature[i] = 0;
+
+	interval = (t_end - t_start) / (RES - 1);
+
+	glColor3ub(252, 157, 154);
+
+	for (i = 0; i < RES; i++)
+	{
+		float t = t_start + interval * i;
+		curvature[i] = CalCurEx(t);
+	}
+
+	for (i = 0; i < RES - 1; i++)
+	{
+		//When curvature_extreme's sign is different
+		if (curvature[i] * curvature[i + 1] < 0)
+		{
+			Point pt;
+			float middle_point;
+			middle_point = t_start + interval * (2 * i + 1) / 2.0;
+			evaluate(&curve, middle_point, pt);
+			SetColor(4, 0);
+			DrawDot(pt);
+			printf("Curvature extreme point---t is %f, point is (%.2f,%.2f)\n", middle_point, pt[0], pt[1]);
+
+			curex_t[curex_num] = middle_point;
+			curex_num++;
+
+			SetColor(7, 0);
+		}
+	}
+}
+
+int CreateBiTree(BiTree T, CubicBezierCurve curve, float offset)
+{
+	(*T).depth++;
+	//	printf("depth is£º%d \n", (*T).depth);
+	float start = T->start;
+	float end = T->end;
+	float dis = T->center_dis;
+	Point pt_start, pt_end;
+	//	printf("interval is£º(%f,%f) \n", start, end);
+
+	if (dis > Ep)
+	{
+		BiNode Tl;
+		BiNode Tr;
+
+		Tl.start = start;
+		Tl.end = (start + end) / 2;
+		Tl.center_dis = Center_dis(curve, start, (start + end) / 2);
+
+		Tr.start = (start + end) / 2;
+		Tr.end = end;
+		Tr.center_dis = Center_dis(curve, (start + end) / 2, end);
+
+		Tr.depth = T->depth;
+		Tl.depth = T->depth;
+
+		T->rChild = &Tr;
+		T->lChild = &Tl;
+
+		CreateBiTree(T->lChild, curve, offset);
+		CreateBiTree(T->rChild, curve, offset);
+		//printf("distance is %f, you have to divide\n",distance);
+	}
+	else
+	{
+		//Draw bi-arc
+		num++;
+		float t_junc;
+		glLineWidth(2.0);
+		glColor3f(1, 0, 0);
+		//	printf("distance is smaller than 0.001, you can draw biarc\n");
+		if (Cal_JuncPt(curve, start, end, &t_junc))
+		{
+			Draw_Biarc(curve, start, t_junc, end, offset);
+			num_junc++;
+		}
+		//	Draw_Offset(Point center, Point start, Point end, int offset) in up function
+		else
+		{
+			evaluate(&curve, start, pt_start);
+			evaluate(&curve, end, pt_end);
+		//	Draw_Arc(curve, start, end, offset);
+			Draw_LineOffset(pt_start, pt_end, offset);
+			Draw_LineOffset(pt_start, pt_end, -offset);
+			num_line++;
+		}
+	}
+	//	printf("Depth is %d\n", (*T).depth);
+	return 1;
 }
 
 //Curve initialization
@@ -381,8 +432,7 @@ void init()
 	SET_PT2(curve.control_pts[1], 200, 300);
 	SET_PT2(curve.control_pts[2], 400, 300);
 	SET_PT2(curve.control_pts[3], 550, 100);
-
-	update_coef();
+	update_coef(curve);
 
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glMatrixMode(GL_PROJECTION);
@@ -404,6 +454,10 @@ void display_callback(void)
 #define RES 100
 	int i;
 	float start, end;
+
+	num = 0;
+	num_junc = 0;
+	num_line = 0;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3ub(209, 73, 78);
@@ -449,13 +503,52 @@ void display_callback(void)
 	glEnd();
 
 	glPointSize(10.0);
-	//extreme points and inflection points
+	//draw monotone extreme points and inflection points
 	ExInf();
-	
-	for (i = 0; i < pt_num - 1; i++)
-		CurEx(res_pt[i], res_pt[i + 1]);
 
-	printf("\n\n");
+	//draw curvature extreme points
+	curex_num = 0;
+	for (i = 0; i < exin_num - 1; i++)
+		CurEx(exin_t[i], exin_t[i + 1]);
+	printf("\n");
+	//All sudivision time sorting
+	Time_Sort();
+
+	//Draw BCA
+	/*for (int i = 0; i < all_num - 1; i++)
+		Cir_BCA(curve, all_t[i], all_t[i + 1]);*/
+
+	//Draw biarc
+	BiNode *Root;
+	Root = (BiNode *)malloc((all_num - 1) * sizeof(BiNode));
+	for (int i = 0; i < all_num - 1; i++)
+	{
+		if (all_t[i + 1] - all_t[i] > 0.001)
+		{
+			Root[i].depth = 0;
+			Root[i].start = all_t[i];
+			Root[i].end = all_t[i + 1];
+			Root[i].center_dis = Center_dis(curve, all_t[i], all_t[i + 1]);
+		}
+	}
+	for (int i = 0; i < all_num - 1; i++)
+	{
+		CreateBiTree(&Root[i], curve, offset);
+	}
+	printf("bi-arc's num is %d\n", num);
+	printf("junc's num is %d\n", num_junc);
+	printf("non-junc's num is %d\n", num_line);
+
+	Draw_End(curve, offset);
+	/*float t_junc;
+	glLineWidth(2.0);
+	glColor3f(1, 0, 0);
+	for (int i = 0; i < all_num - 1; i++)
+	{
+		Cal_JuncPt(curve, all_t[i], all_t[i+1], &t_junc);
+		Draw_Biarc(curve, all_t[i], t_junc, all_t[i+1]);
+	}*/
+
 	glutSwapBuffers();
 }
 
@@ -483,10 +576,10 @@ void mouse_move_callback(GLint x, GLint y)
 		curve.control_pts[edit_ctrlpts_idx][0] = (float)x;
 		curve.control_pts[edit_ctrlpts_idx][1] = (float)(height - y);
 	}
-	update_coef();
+	update_coef(curve);
 	//array point_t Initialization, first t should be 0
 	for (int i = 0; i < 20; i++)
-		res_pt[i] = 0;
+		exin_t[i] = 0;
 	glutPostRedisplay();
 }
 
@@ -498,6 +591,8 @@ int main(int argc, char *argv[])
 	glutInitWindowSize(width, height);
 	glutCreateWindow("CAGD_HW1");
 
+	printf("Please input OFFSET(float type):\n");
+	cin >> offset;
 	init();
 	glutReshapeFunc(reshape_callback);
 	glutDisplayFunc(display_callback);

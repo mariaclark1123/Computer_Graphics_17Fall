@@ -11,8 +11,9 @@ using namespace std;
 CubicBezierCurve curve;
 GLsizei width = 640, height = 480;
 int edit_ctrlpts_idx = -1;
-int pt_num;
-float res_pt[20] = {0};
+int pt_num, allpt;
+float res_pt[20] = {0};  //extreme and inflection points
+float allpt[20] = { 0 };  //all subdivision points
 float coef1[2] = { 0 }, coef2[2] = { 0 }, coef3[2] = { 0 }, judge[2] = { 0 };
 
 void SetColor(unsigned short ForeColor, unsigned short BackGroundColor)
@@ -130,6 +131,11 @@ void CurEx(float t_start, float t_end)
 			SetColor(4, 0);
 			DrawDot(pt[0], pt[1]);
 			printf("Curvature extreme point---t is %f, point is (%.2f,%.2f)\n", middle_point, pt[0], pt[1]);
+
+			//add 6:23
+			res_pt[pointnum] = middle_point;
+			pointnum++;
+
 			SetColor(7, 0);
 		}
 		else if (curvature[i] == 0)
@@ -145,6 +151,9 @@ void CurEx(float t_start, float t_end)
 					SetColor(4, 0);
 					DrawDot(pt[0], pt[1]);
 					SetColor(7, 0);
+					//add 6:23
+					res_pt[pointnum] = middle_point;
+					pointnum++;
 				}
 			}
 		}
@@ -307,6 +316,12 @@ void ExInf()
 		}
 
 	}
+	//Set the word color to white
+	SetColor(7, 0);
+}
+
+void Sort_time()
+{
 	//The number of all used points' timing
 	pt_num = pointnum + 1;
 	//printf("pnum is %d\n", pnum);
@@ -326,8 +341,6 @@ void ExInf()
 			}
 		}
 	}
-	//Set the word color to white
-	SetColor(7, 0);
 }
 
 void drawString(const char* str) {
@@ -426,6 +439,9 @@ void display_callback(void)
 	
 	for (i = 0; i < pt_num - 1; i++)
 		CurEx(res_pt[i], res_pt[i + 1]);
+
+	//6:26 sorttime
+	Sort_time();
 
 	printf("\n\n");
 	glutSwapBuffers();
